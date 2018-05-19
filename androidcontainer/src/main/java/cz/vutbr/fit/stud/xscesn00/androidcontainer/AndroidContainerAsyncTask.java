@@ -17,17 +17,9 @@ public class AndroidContainerAsyncTask extends AsyncTask {
    */
   private Method resumeMethod;
   /**
-   * Argument of method which should be invoked on resuming.
-   */
-  private String resumeMethodArgument;
-  /**
    * Method which should be invoked on suspending.
    */
   private Method suspendMethod;
-  /**
-   * Argument of method which should be invoked on suspending.
-   */
-  private String suspendMethodArgument;
 
   /**
    * Constructor
@@ -36,8 +28,8 @@ public class AndroidContainerAsyncTask extends AsyncTask {
    */
   public AndroidContainerAsyncTask(Object objectInstance) {
     this.objectInstance = objectInstance;
+    //    isRunning = true;
   }
-
   // endregion Private Attributes
 
   // region Public Setters Methods
@@ -46,16 +38,8 @@ public class AndroidContainerAsyncTask extends AsyncTask {
     this.resumeMethod = resumeMethod;
   }
 
-  public void setResumeMethodArgument(String resumeMethodArgument) {
-    this.resumeMethodArgument = resumeMethodArgument;
-  }
-
   public void setSuspendMethod(Method suspendMethod) {
     this.suspendMethod = suspendMethod;
-  }
-
-  public void setSuspendMethodArgument(String suspendMethodArgument) {
-    this.suspendMethodArgument = suspendMethodArgument;
   }
 
   // endregion Public Setters Methods
@@ -73,9 +57,15 @@ public class AndroidContainerAsyncTask extends AsyncTask {
   protected Object doInBackground(Object[] objects) {
     while (!isCancelled()) {
       try {
-        this.resumeMethod.invoke(this.objectInstance, (Object) this.resumeMethodArgument);
-      } catch (IllegalAccessException | InvocationTargetException e) {
-        e.printStackTrace();
+        Thread.currentThread();
+        try {
+          this.resumeMethod.invoke(this.objectInstance);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+          e.printStackTrace();
+        }
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
       }
     }
     return null;
@@ -87,8 +77,9 @@ public class AndroidContainerAsyncTask extends AsyncTask {
   @Override
   protected void onCancelled() {
     super.onCancelled();
+
     try {
-      this.suspendMethod.invoke(this.objectInstance, (Object) this.suspendMethodArgument);
+      this.suspendMethod.invoke(this.objectInstance);
     } catch (IllegalAccessException | InvocationTargetException e) {
       e.printStackTrace();
     }

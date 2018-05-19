@@ -5,6 +5,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import android.content.*;
+import android.os.*;
 
 import dalvik.system.*;
 
@@ -80,8 +81,10 @@ public class AndroidContainer implements AndroidContainerInterface {
   public void onContainerCreate(
     Context context, String className, String jarToLoad, String outPath
   ) {
+
     this.outPath = outPath;
     File tempDir = context.getDir(TEMP_DIR_NAME, Context.MODE_PRIVATE);
+
     classLoader = new DexClassLoader(
       jarToLoad,
       tempDir.getAbsolutePath(),
@@ -113,11 +116,10 @@ public class AndroidContainer implements AndroidContainerInterface {
 
     // Run method resumeContainer(String file) using reflection.
     try {
-      Method methodResume = this.classToLoad.getMethod("resumeContainer", String.class);
+      Method methodResume = this.classToLoad.getMethod("resumeContainer");
       this.asyncTask.setResumeMethod(methodResume);
-      this.asyncTask.setResumeMethodArgument(this.outPath);
-      //noinspection unchecked
-      this.asyncTask.execute();
+      //      noinspection unchecked
+      this.asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     } catch (NoSuchMethodException e) {
       e.printStackTrace();
     }
@@ -130,9 +132,8 @@ public class AndroidContainer implements AndroidContainerInterface {
   public void onContainerSuspend() {
     // Run method suspendContainer(String file) using reflection.
     try {
-      Method methodSuspend = this.classToLoad.getMethod("suspendContainer", String.class);
+      Method methodSuspend = this.classToLoad.getMethod("suspendContainer");
       this.asyncTask.setSuspendMethod(methodSuspend);
-      this.asyncTask.setSuspendMethodArgument(this.outPath);
       this.asyncTask.cancel(true);
     } catch (NoSuchMethodException e) {
       e.printStackTrace();
@@ -180,7 +181,7 @@ public class AndroidContainer implements AndroidContainerInterface {
   @Override
   public Object loadObject(Class objectClass) {
     for (Object object : inObjects) {
-      if (objectClass.isInstance(object)) {
+      if (object.getClass().getName().equals(objectClass.getName())) {
         return object;
       }
     }
@@ -198,7 +199,7 @@ public class AndroidContainer implements AndroidContainerInterface {
   public List<Object> loadObjects(Class objectClass) {
     ArrayList<Object> result = new ArrayList<>();
     for (Object object : inObjects) {
-      if (objectClass.isInstance(object)) {
+      if (object.getClass().getName().equals(objectClass.getName())) {
         result.add(object);
       }
     }
@@ -213,9 +214,6 @@ public class AndroidContainer implements AndroidContainerInterface {
    */
   @Override
   public void loadFile(String file, Class<?> aClass) {
-    if ((inputStream != null)) {
-      return;
-    }
     try {
       inputStream = new CustomObjectInputStream(new FileInputStream(file));
       inputStream.setClassName(aClass);
@@ -231,10 +229,6 @@ public class AndroidContainer implements AndroidContainerInterface {
    */
   @Override
   public void setFile(String file) {
-    if (outputStream != null) {
-      return;
-    }
-
     try {
       outputStream = new ObjectOutputStream(new FileOutputStream(file));
     } catch (IOException e) {
@@ -261,6 +255,7 @@ public class AndroidContainer implements AndroidContainerInterface {
   @Override
   public void onLoadState() {
     try {
+      //      noinspection unchecked
       inObjects = (ArrayList<Object>) inputStream.readObject();
     } catch (IOException | ClassNotFoundException e) {
       e.printStackTrace();

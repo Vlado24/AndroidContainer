@@ -6,11 +6,7 @@ import android.support.v7.app.*;
 
 import timber.log.*;
 
-import cz.vutbr.fit.stud.xscesn00.androidcontainer.*;
-
 public class MainActivity extends AppCompatActivity {
-
-  private AndroidContainer container;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -21,21 +17,6 @@ public class MainActivity extends AppCompatActivity {
     if (BuildConfig.DEBUG) {
       Timber.plant(new Timber.DebugTree());
     }
-
-    this.container = new AndroidContainer();
-  }
-
-  @Override
-  protected void onResume() {
-    super.onResume();
-
-    this.container.onContainerResume();
-  }
-
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-
-    this.container.onContainerSuspend();
   }
 }
+
