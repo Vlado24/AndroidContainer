@@ -4,19 +4,18 @@ import java.util.*;
 
 import android.content.*;
 
-public interface AndroidContainerInterface {
+public interface IAndroidContainer {
 
   // region Container main methods
 
   /**
    * Initialize Container and all of necessary fields using in Class of implementation.
-   *
    * @param context Android Context
    * @param className Class which should be reviewed.
-   * @param jarPath Path to .dex file
+   * @param dexPath Path to .dex file
    * @param outPath Path to output file where are object serialized.
    */
-  void onContainerCreate(Context context, String className, String jarPath, String outPath);
+  void onContainerCreate(Context context, String className, String dexPath, String outPath);
 
   /**
    * Loading saved object from output file and executing AsyncTask to run program.

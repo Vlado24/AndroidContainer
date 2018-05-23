@@ -9,7 +9,7 @@ import android.os.*;
 
 import dalvik.system.*;
 
-public class AndroidContainer implements AndroidContainerInterface {
+public class AndroidContainer implements IAndroidContainer {
 
   // region Private Static Attributes
 
@@ -71,22 +71,21 @@ public class AndroidContainer implements AndroidContainerInterface {
 
   /**
    * Initializing Container and fields.
-   *
    * @param context Android Context
    * @param className Class which should be reviewed.
-   * @param jarToLoad Path to .dex file
+   * @param dexPath Path to .dex file
    * @param outPath Path to output file where are object serialized.
    */
   @Override
   public void onContainerCreate(
-    Context context, String className, String jarToLoad, String outPath
+    Context context, String className, String dexPath, String outPath
   ) {
 
     this.outPath = outPath;
     File tempDir = context.getDir(TEMP_DIR_NAME, Context.MODE_PRIVATE);
 
     classLoader = new DexClassLoader(
-      jarToLoad,
+      dexPath,
       tempDir.getAbsolutePath(),
       null,
       context.getClass().getClassLoader()

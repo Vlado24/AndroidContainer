@@ -187,17 +187,17 @@ public class CustomMessagingService extends FirebaseMessagingService {
   }
 
   /** Exploring file with Android Container.
-   * @param jarFile to be reviewed.
+   * @param dexFile to be reviewed.
    * @param numberOfLoops number of loops defined in message.
    */
-  private void exploreFile(String jarFile, final String numberOfLoops) {
-    Timber.d("exploreFile(): outputFile: %s", jarFile);
+  private void exploreFile(String dexFile, final String numberOfLoops) {
+    Timber.d("exploreFile(): outputFile: %s", dexFile);
 
     // Names processing.
-    int index = jarFile.lastIndexOf('.') + 1;
-    String fileName = jarFile.substring(0, index).concat("out");
+    int index = dexFile.lastIndexOf('.') + 1;
+    String fileName = dexFile.substring(0, index).concat("out");
     final String classToLoad = "cz.vutbr.fit.stud.xscesn00.BubbleSortWrapper";
-    final String jarPath = getExternalFilesDir(null) + File.separator + jarFile;
+    final String dexPath = getExternalFilesDir(null) + File.separator + dexFile;
     final String outPath = getExternalFilesDir(null) + File.separator + fileName;
 
     setLoops(0);
@@ -213,14 +213,14 @@ public class CustomMessagingService extends FirebaseMessagingService {
         // If is number of loops same as was on server, then upload file with serialized data,
         // and unregister itself.
         if (getLoops() == Integer.parseInt(numberOfLoops)) {
-          uploadFileToServer(jarPath, outPath);
+          uploadFileToServer(dexPath, outPath);
           setUnregister(true);
           unregisterReceiver(this);
           return;
         }
         setLoops(getLoops() + 1);
         container
-          .onContainerCreate(getApplicationContext(), classToLoad, jarPath, outPath);
+          .onContainerCreate(getApplicationContext(), classToLoad, dexPath, outPath);
         container.onContainerResume();
       }
     }, filter);
@@ -248,15 +248,15 @@ public class CustomMessagingService extends FirebaseMessagingService {
   /**
    * Upload file with serialized objects to server.
    *
-   * @param jarPath path of file which was reviewed.
+   * @param dexPath path of file which was reviewed.
    * @param outPath path of file which will be upload.
    */
-  private void uploadFileToServer(String jarPath, String outPath) {
-    Timber.d("uploadFileToServer(): jarPath: %s, outPath: %s", jarPath, outPath);
+  private void uploadFileToServer(String dexPath, String outPath) {
+    Timber.d("uploadFileToServer(): dexPath: %s, outPath: %s", dexPath, outPath);
 
     String device = FirebaseInstanceId.getInstance().getToken();
-    int index = jarPath.lastIndexOf('/') + 1;
-    String withoutFiles = "files/" + jarPath.substring(index, jarPath.length());
+    int index = dexPath.lastIndexOf('/') + 1;
+    String withoutFiles = "files/" + dexPath.substring(index, dexPath.length());
 
     File f = new File(outPath);
     if (!f.exists()) {
